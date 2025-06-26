@@ -14,6 +14,22 @@ const createStudent = async (req, res) => {
     }
 }
 
+const loginStudent = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        const student = await Student.findOne({ email });
+        if(!student) return res.status(400).json({ error: 'Invalid credentials'});
+
+        const isMatch = await bcrypt.compare(password, student.password);
+        if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
+
+        const token = createToken(student._id);
+        res.json({message: 'Login successful', token });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+}
+
 const getAllStudents = async (req, res) => {
     const students = await Student.find();
     res.json(students)
