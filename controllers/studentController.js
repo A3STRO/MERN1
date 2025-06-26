@@ -1,10 +1,14 @@
 const Student = require("../models/Student")
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const createStudent = async (req, res) => {
     try {
-        const student = new Student(req.body);
-        const saved = await student.save()
-        res.status(201).json(saved)
+        const { name, email, password, age, course } = req.body;
+        const existing = await Student.findOne({ email });
+        if (existing) return res.status(400).json({ message: 'Email already registered' });
+        const student = await Student.create({ name, email, password, age, course });
+        res.status(201).json({ message: "Student registered successfully!"});
     } catch (error) {
         res.status(400).json({ error: err.message })
     }
