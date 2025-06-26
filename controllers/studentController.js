@@ -73,11 +73,18 @@ const deleteStudent = async (req, res) => {
     }
 }
 
+const getProfile = async (req, res) => {
+    const student = await Student.findById(req.params.id);
+    if (!student) return res.status(404).json({ error: 'Student not found' });
+    res.json({ message: 'Profile fetched successfully', student });
+}
+
 module.exports = {
     createStudent,
     getAllStudents,
     getStudentById,
     updateStudent,
     deleteStudent,
-    loginStudent
+    loginStudent,
+    getProfile
 }
