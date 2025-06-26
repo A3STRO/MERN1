@@ -2,13 +2,17 @@ const Student = require("../models/Student")
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
+const createToken = (id) => {
+    return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+}
+
 const createStudent = async (req, res) => {
     try {
         const { name, email, password, age, course } = req.body;
         const existing = await Student.findOne({ email });
         if (existing) return res.status(400).json({ message: 'Email already registered' });
         const student = await Student.create({ name, email, password, age, course });
-        res.status(201).json({ message: "Student registered successfully!"});
+        res.status(201).json({ message: "Student registered successfully!" });
     } catch (error) {
         res.status(400).json({ error: err.message })
     }
@@ -18,13 +22,13 @@ const loginStudent = async (req, res) => {
     try {
         const { email, password } = req.body;
         const student = await Student.findOne({ email });
-        if(!student) return res.status(400).json({ error: 'Invalid credentials'});
+        if (!student) return res.status(400).json({ error: 'Email not registered!' });
 
         const isMatch = await bcrypt.compare(password, student.password);
         if (!isMatch) return res.status(400).json({ error: 'Invalid credentials' });
 
         const token = createToken(student._id);
-        res.json({message: 'Login successful', token });
+        res.json({ message: 'Login successful', token });
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -74,5 +78,6 @@ module.exports = {
     getAllStudents,
     getStudentById,
     updateStudent,
-    deleteStudent
+    deleteStudent,
+    loginStudent
 }
