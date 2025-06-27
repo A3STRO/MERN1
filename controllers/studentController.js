@@ -74,10 +74,14 @@ const deleteStudent = async (req, res) => {
 }
 
 const getProfile = async (req, res) => {
-    const student = await Student.findById(req.params.id);
-    if (!student) return res.status(404).json({ error: 'Student not found' });
-    res.json({ message: 'Profile fetched successfully', student });
-}
+    try {
+        const student = await Student.findById(req.user.id);
+        if (!student) return res.status(404).json({ error: 'Student not found' });
+        res.json({ message: 'Profile fetched successfully', student });
+    } catch (error) {
+        res.status(500).json({ error: "Server error" });
+    }
+};
 
 module.exports = {
     createStudent,
